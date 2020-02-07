@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "WiFi.h"
+#include "ESPAsyncWebServer.h"
+#include "SPIFFS.h"
 
 #include "../../config.h"
 // const char *ssid = "...";
@@ -7,6 +9,11 @@
 
 const int LED = 5;
 const int SENSOR = 2;
+
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+
+void setup_webserver();
 
 void setup()
 {
@@ -33,6 +40,8 @@ void setup()
 
   Serial.println("Connected");
   Serial.println(WiFi.localIP());
+
+  setup_webserver();
 }
 
 void loop()
@@ -45,4 +54,20 @@ void loop()
     // On redémarre la carte pour quelle se reconnecte
     ESP.restart();
   }
+}
+ 
+void setup_webserver(){
+  // Initialize SPIFFS
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", String(), false);
+  });
+  
+  // Start server
+  server.begin();
 }
