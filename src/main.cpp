@@ -55,19 +55,19 @@ void loop()
     ESP.restart();
   }
 }
- 
-void setup_webserver(){
+
+void setup_webserver()
+{
   // Initialize SPIFFS
-  if(!SPIFFS.begin(true)){
+  if (!SPIFFS.begin(true))
+  {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", String(), false);
-  });
-  
+  server.serveStatic("/", SPIFFS, "/www/").setDefaultFile("index.html");
+
   // Start server
   server.begin();
 }
