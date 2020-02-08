@@ -1,0 +1,13 @@
+{
+    "chip_id": "ABCDEF0123",
+    "networks": [
+        {
+            "ssid": "Sherlock",
+            "secure": 1
+        },
+        {
+            "ssid": "Orange",
+            "secure": 0
+        }
+    ]
+}

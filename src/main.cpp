@@ -11,7 +11,7 @@ const int LED = 5;
 const int SENSOR = 2;
 
 // Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
+AsyncWebServer *server = NULL;
 
 void setup_webserver();
 
@@ -58,6 +58,7 @@ void loop()
 
 void setup_webserver()
 {
+  server = new AsyncWebServer(80);
   // Initialize SPIFFS
   if (!SPIFFS.begin(true))
   {
@@ -66,8 +67,51 @@ void setup_webserver()
   }
 
   // Route for root / web page
-  server.serveStatic("/", SPIFFS, "/www/").setDefaultFile("index.html");
+  server->serveStatic("/", SPIFFS, "/www/").setDefaultFile("index.html");
+
+  server->on("/scan.json", HTTP_GET, [](AsyncWebServerRequest *request) {
+    String json = "{";
+    json += "\"chip_id\":\"";
+
+    char boardId[13]; // 6*2 bytes for chipID + 1 for \0
+    uint64_t chipid = ESP.getEfuseMac();
+    sprintf(boardId, "%04X%08X",
+            (uint16_t)(chipid >> 32), //print High 2 bytes
+            (uint32_t)chipid);        //print Low 4bytes.
+    json += boardId;
+
+    json += "\", \"networks\": [";
+
+    int n = WiFi.scanComplete();
+    if (n == -2)
+    {
+      WiFi.scanNetworks(true);
+    }
+    else if (n)
+    {
+      for (int i = 0; i < n; ++i)
+      {
+        if (i)
+        {
+          json += ",";
+        }
+        json += "{";
+        json += ",\"ssid\":\"" + WiFi.SSID(i) + "\"";
+        json += ",\"channel\":" + String(WiFi.channel(i));
+        json += ",\"secure\":" + String(WiFi.encryptionType(i));
+        json += "}";
+      }
+      WiFi.scanDelete();
+      if (WiFi.scanComplete() == -2)
+      {
+        WiFi.scanNetworks(true);
+      }
+    }
+    json += "]}";
+    request->send(200, "application/json", json);
+    json = String();
+  });
 
   // Start server
-  server.begin();
+  server->begin();
 }
