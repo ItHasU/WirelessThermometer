@@ -1,31 +1,17 @@
 //-- Init ---------------------------------------------------------------------
 
-var $components = {
-    ssidSelect: $("#ssid"),
-    ssidRefreshButton: $("ssid_refresh"),
-    ssidOpenText: $("#ssid_open"),
-    passwordInput: $("#password")
-}
-
 function init() {
-    //-- Register select callback --
-    $components.ssidSelect.change(() => {
-        var $selected = $components.ssidSelect.children("option:selected");
-        var network = $selected.data("network");
-        if (network.secure) {
-            $components.passwordInput.parent().show();
-            $components.ssidOpenText.hide();
-        } else {
-            $components.ssidOpenText.show();
-            $components.passwordInput.parent().hide();
-            $components.passwordInput.val("");
-        }
-    });
-    $components.ssidRefreshButton.click(() => {
-        getInfo();
-    });
-
     //-- Register save --
+    $("#save").click(() => {
+        $.ajax({
+            type: "POST",
+            url: "/settings.json",
+            data: $("#settings").serialize(), // serializes the form's elements.
+            success: function () {
+                alert("Done"); // show response from the php script.
+            }
+        });
+    });
 
     //-- Register reboot --
 
@@ -52,22 +38,19 @@ function errorMessage(text) {
 
 //-- Form ---------------------------------------------------------------------
 
-function fillForm(infos) {
-    $("#chip_id").text(infos.chip_id);
-
-    let $ssidSelect = $("#ssid");
-    for (let network of infos.networks) {
-        $(`<option>${network.ssid}</option>`).data("network", network).appendTo($ssidSelect);
-    }
-}
-
 //-- AJAX ---------------------------------------------------------------------
 
 /** Retrieve information from the chip (id, wireless access points, ...) */
-function getInfo() {
+function getSettings() {
     showProgress();
-    $.getJSON("/scan.json").done((infos) => {
-        fillForm(infos);
+    $.getJSON("/settings.json").done((infos) => {
+        //-- Chip ID ----------------------------------------------------------
+        $("#chip_id").text(infos.chip_id);
+
+        //-- Fill form --------------------------------------------------------
+        for (let k in infos.settings) {
+            $(`input[name="${k}"]`).val(infos.settings[k]);
+        }
     }).fail(() => {
         errorMessage("Failed to load chip info");
     }).always(hideProgress);
@@ -77,5 +60,5 @@ function getInfo() {
 
 $(() => {
     init();
-    getInfo();
+    getSettings();
 });

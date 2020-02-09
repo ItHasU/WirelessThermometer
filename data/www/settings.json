@@ -1,0 +1,7 @@
+{
+    "chip_id": "ABCDEF0123",
+    "settings": {
+        "net_ssid": "MySSID",
+        "net_pass": "MyPassword"
+    }
+}
