@@ -1,6 +1,13 @@
 //-- Init ---------------------------------------------------------------------
 
 function init() {
+    //-- AJAX errors notification --
+    $(document).ajaxError(() => {
+        message("I did not expected this, but there was an error. Sorry for this.");
+    });
+    $(document).ajaxStart(showProgress);
+    $(document).ajaxStop(hideProgress);
+
     //-- Register save --
     $("#save").click(() => {
         $.ajax({
@@ -8,13 +15,39 @@ function init() {
             url: "/settings.json",
             data: $("#settings").serialize(), // serializes the form's elements.
             success: function () {
-                alert("Done"); // show response from the php script.
+                message("Settings saved", "success");
+                getSettings();
             }
         });
     });
 
-    //-- Register reboot --
+    //-- Register dangerous callbacks --
+    $("#reboot").click(() => {
+        $.ajax({
+            type: "GET",
+            url: "/reboot",
+            success: function () {
+                message("System has rebooted", "info", 0);
+                $("button").attr("disabled", "disabled");
+            }
+        });
+    });
 
+    $("#clear").click(() => {
+        $.ajax({
+            type: "DELETE",
+            url: "/settings.json",
+            success: function () {
+                message("Settings were cleaned", "info");
+                getSettings();
+            }
+        });
+    });
+
+    //-- Hide notification --
+    $("#message").click(() => {
+        $("#message").slideUp(100);
+    })
 }
 
 
@@ -28,11 +61,18 @@ function hideProgress() {
     $("#progress").hide();
 }
 
-function errorMessage(text) {
+function message(text, className = "danger", timeout_s = 5) {
+    var $msg = $("#message");
+    $msg.removeClass("alert-danger alert-success alert-info").addClass(`alert-${className}`);
     if (text) {
-        $("#error").html(text).show();
+        $msg.html(text).slideDown(200);
+        if (timeout_s) {
+            setTimeout(() => {
+                $msg.slideUp(200);
+            }, timeout_s * 1000);
+        }
     } else {
-        $("#error").hide();
+        $msg.hide();
     }
 }
 
@@ -46,13 +86,14 @@ function getSettings() {
     $.getJSON("/settings.json").done((infos) => {
         //-- Chip ID ----------------------------------------------------------
         $("#chip_id").text(infos.chip_id);
+        $("input[name='board_uid']").attr("placeholder", infos.chip_id);
 
         //-- Fill form --------------------------------------------------------
         for (let k in infos.settings) {
             $(`input[name="${k}"]`).val(infos.settings[k]);
         }
     }).fail(() => {
-        errorMessage("Failed to load chip info");
+        message("Failed to load chip info");
     }).always(hideProgress);
 }
 

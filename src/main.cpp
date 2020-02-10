@@ -10,19 +10,22 @@
 
 const char *PREFERENCES_NAME = "settings";
 
-const char *P_HAS_CONFIG = "has_config";
-
 const char *P_NETWORK_SSID = "net_ssid";
 const char *P_NETWORK_PASSWORD = "net_pass";
+
+const char *P_MQTT_SERVER = "mqtt_server";
+const char *P_MQTT_PORT = "mqtt_port";
+const char *P_MQTT_USERNAME = "mqtt_user";
+const char *P_MQTT_PASSWORD = "mqtt_pass";
+
+const char *P_BOARD_UID = "board_uid";
 
 const int LED = 5;
 const int SENSOR = 2;
 
 //-----------------------------------------------------------------------------
-//-- Preferences --------------------------------------------------------------
+//-- Globals ------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-
-Preferences preferences;
 
 //-----------------------------------------------------------------------------
 //-- HTTP Server --------------------------------------------------------------
@@ -35,6 +38,8 @@ void setup_webserver();
 //-- Main ---------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+int reboot_timeout_s = 60;
+
 void setup()
 {
   Serial.begin(9600);
@@ -43,20 +48,26 @@ void setup()
   pinMode(SENSOR, INPUT_PULLUP);
 
   // //-- Write data --
-  // preferences.begin("settings", false);
-  // preferences.putString("ssid", ssid);
-  // preferences.putString("password", password);
-  // preferences.end();
-  // return;
+  // {
+  //   #include "../../config.h"
+  //   Preferences preferences;
+  //   preferences.begin(PREFERENCES_NAME, false);
+  //   preferences.putString(P_NETWORK_SSID, ssid);
+  //   preferences.putString(P_NETWORK_PASSWORD, password);
+  //   preferences.end();
+  //   return;
+  // }
 
   //-- Read preferences --
+  Preferences preferences;
+
   preferences.begin("settings", true);
-  String p_ssid = preferences.getString(P_NETWORK_SSID, "Sherlock");
-  String p_password = preferences.getString(P_NETWORK_PASSWORD, "elementairemoncherwatson");
+  String p_ssid = preferences.getString(P_NETWORK_SSID);
+  String p_password = preferences.getString(P_NETWORK_PASSWORD);
   preferences.end();
 
   //-- Connexion au WIFI --
-  Serial.println("Connecting to wifi...");
+  Serial.printf("Connecting to %s:%s\n", p_ssid.c_str(), p_password.c_str());
   while (WiFi.status() != WL_CONNECTED)
   {
     // On essaye de se connecter
@@ -79,13 +90,14 @@ void setup()
 
 void loop()
 {
-  digitalWrite(LED, !digitalRead(LED));
+  digitalWrite(LED, LOW);
   delay(500); // ms
-
-  if (WiFi.status() != WL_CONNECTED)
+  digitalWrite(LED, HIGH);
+  delay(500); // ms
+  reboot_timeout_s--;
+  if (reboot_timeout_s == 0)
   {
-    // On redémarre la carte pour quelle se reconnecte
-    ESP.restart();
+    Serial.println("System reached timeout, restarting");
   }
 }
 
@@ -118,10 +130,18 @@ void setup_webserver()
     json += "\"";
 
     //-- Get preferences ------------------------------------------------------
+    Preferences preferences;
     json += ", \"settings\": {";
     preferences.begin(PREFERENCES_NAME, true);
     json += "\"" + String(P_NETWORK_SSID) + "\": \"" + preferences.getString(P_NETWORK_SSID) + "\",";
     json += "\"" + String(P_NETWORK_PASSWORD) + "\": \"" + preferences.getString(P_NETWORK_PASSWORD) + "\",";
+
+    json += "\"" + String(P_MQTT_SERVER) + "\": \"" + preferences.getString(P_MQTT_SERVER) + "\",";
+    json += "\"" + String(P_MQTT_PORT) + "\": \"" + preferences.getInt(P_MQTT_PORT, 1883) + "\",";
+    json += "\"" + String(P_MQTT_USERNAME) + "\": \"" + preferences.getString(P_MQTT_USERNAME) + "\",";
+    json += "\"" + String(P_MQTT_PASSWORD) + "\": \"" + preferences.getString(P_MQTT_PASSWORD) + "\",";
+
+    json += "\"" + String(P_BOARD_UID) + "\": \"" + preferences.getString(P_BOARD_UID) + "\",";
 
     json += "\"end\":0";
     json += "}";
@@ -136,16 +156,35 @@ void setup_webserver()
   server->on("/settings.json", HTTP_POST, [](AsyncWebServerRequest *request) {
     //List all parameters
     int params = request->params();
+
+    Preferences preferences;
     preferences.begin(PREFERENCES_NAME, false);
     for (int i = 0; i < params; i++)
     {
       AsyncWebParameter *p = request->getParam(i);
       if (p->isPost())
       {
-        preferences.putString(p->name().c_str(), p->value());
+        if (strcmp(p->name().c_str(), P_MQTT_PORT) == 0)
+        {
+          preferences.putInt(p->name().c_str(), atoi(p->value().c_str()));
+        }
+        else
+        {
+          preferences.putString(p->name().c_str(), p->value());
+        }
         Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       }
     }
+    preferences.end();
+
+    request->send(200);
+  });
+
+  //-- Clear preferences ------------------------------------------------------
+  server->on("/settings.json", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+    Preferences preferences;
+    preferences.begin(PREFERENCES_NAME);
+    preferences.clear();
     preferences.end();
 
     request->send(200);
@@ -174,6 +213,13 @@ void setup_webserver()
     json += "]}";
     request->send(200, "application/json", json);
     json = String();
+  });
+
+  //-- Reboot -----------------------------------------------------------------
+  server->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200);
+
+    ESP.restart();
   });
 
   // Route for root / web page
