@@ -59,12 +59,16 @@ void setup()
   // }
 
   //-- Read preferences --
-  Preferences preferences;
+#include "../../config.h"
+  String p_ssid(ssid);
+  String p_password(password);
 
-  preferences.begin("settings", true);
-  String p_ssid = preferences.getString(P_NETWORK_SSID);
-  String p_password = preferences.getString(P_NETWORK_PASSWORD);
-  preferences.end();
+  // Preferences preferences;
+
+  // preferences.begin("settings", true);
+  // String p_ssid = preferences.getString(P_NETWORK_SSID);
+  // String p_password = preferences.getString(P_NETWORK_PASSWORD);
+  // preferences.end();
 
   //-- Connexion au WIFI --
   Serial.printf("Connecting to %s:%s\n", p_ssid.c_str(), p_password.c_str());
@@ -220,6 +224,11 @@ void setup_webserver()
     request->send(200);
 
     ESP.restart();
+  });
+
+  server->onNotFound([](AsyncWebServerRequest *request) {
+    Serial.println(request->url().c_str());
+    request->send(404, "text/plain", "Not found");
   });
 
   // Route for root / web page
