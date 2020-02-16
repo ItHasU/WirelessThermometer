@@ -3,6 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include <Preferences.h>
+#include <DNSServer.h>
 
 //-----------------------------------------------------------------------------
 //-- Constants ----------------------------------------------------------------
@@ -27,6 +28,10 @@ const int SENSOR = 2;
 //-- Globals ------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+const byte DNS_PORT = 53;
+IPAddress apIP(192, 168, 4, 1);
+DNSServer dnsServer;
+
 //-----------------------------------------------------------------------------
 //-- HTTP Server --------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -47,47 +52,47 @@ void setup()
   pinMode(LED, OUTPUT);
   pinMode(SENSOR, INPUT_PULLUP);
 
-  // //-- Write data --
-  // {
-  //   #include "../../config.h"
-  //   Preferences preferences;
-  //   preferences.begin(PREFERENCES_NAME, false);
-  //   preferences.putString(P_NETWORK_SSID, ssid);
-  //   preferences.putString(P_NETWORK_PASSWORD, password);
-  //   preferences.end();
-  //   return;
-  // }
+  //   // //-- Write data --
+  //   // {
+  //   //   #include "../../config.h"
+  //   //   Preferences preferences;
+  //   //   preferences.begin(PREFERENCES_NAME, false);
+  //   //   preferences.putString(P_NETWORK_SSID, ssid);
+  //   //   preferences.putString(P_NETWORK_PASSWORD, password);
+  //   //   preferences.end();
+  //   //   return;
+  //   // }
 
-  //-- Read preferences --
-#include "../../config.h"
-  String p_ssid(ssid);
-  String p_password(password);
+  //   //-- Read preferences --
+  // #include "../../config.h"
+  //   String p_ssid(ssid);
+  //   String p_password(password);
 
-  // Preferences preferences;
+  //   // Preferences preferences;
 
-  // preferences.begin("settings", true);
-  // String p_ssid = preferences.getString(P_NETWORK_SSID);
-  // String p_password = preferences.getString(P_NETWORK_PASSWORD);
-  // preferences.end();
+  //   // preferences.begin("settings", true);
+  //   // String p_ssid = preferences.getString(P_NETWORK_SSID);
+  //   // String p_password = preferences.getString(P_NETWORK_PASSWORD);
+  //   // preferences.end();
 
-  //-- Connexion au WIFI --
-  Serial.printf("Connecting to %s:%s\n", p_ssid.c_str(), p_password.c_str());
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    // On essaye de se connecter
-    WiFi.begin(p_ssid.c_str(), p_password.c_str());
-    // On attend un peu pour voir si on est connecté
-    for (int i = 0; i < 20; i++)
-    { // 20 * 100ms
-      Serial.print(".");
-      digitalWrite(LED, !digitalRead(LED));
-      delay(100);
-    }
-    Serial.print("\n");
-  }
+  //   //-- Connexion au WIFI --
+  //   Serial.printf("Connecting to %s:%s\n", p_ssid.c_str(), p_password.c_str());
+  //   while (WiFi.status() != WL_CONNECTED)
+  //   {
+  //     // On essaye de se connecter
+  //     WiFi.begin(p_ssid.c_str(), p_password.c_str());
+  //     // On attend un peu pour voir si on est connecté
+  //     for (int i = 0; i < 20; i++)
+  //     { // 20 * 100ms
+  //       Serial.print(".");
+  //       digitalWrite(LED, !digitalRead(LED));
+  //       delay(100);
+  //     }
+  //     Serial.print("\n");
+  //   }
 
-  Serial.println("Connected");
-  Serial.println(WiFi.localIP());
+  //   Serial.println("Connected");
+  //   Serial.println(WiFi.localIP());
 
   setup_webserver();
 }
@@ -95,14 +100,14 @@ void setup()
 void loop()
 {
   digitalWrite(LED, LOW);
-  delay(500); // ms
+  delay(10); // ms
   digitalWrite(LED, HIGH);
   delay(500); // ms
-  reboot_timeout_s--;
-  if (reboot_timeout_s == 0)
-  {
-    Serial.println("System reached timeout, restarting");
-  }
+  // reboot_timeout_s--;
+  // if (reboot_timeout_s == 0)
+  // {
+  //   Serial.println("System reached timeout, restarting");
+  // }
 }
 
 //-----------------------------------------------------------------------------
@@ -111,6 +116,17 @@ void loop()
 
 void setup_webserver()
 {
+  WiFi.disconnect();   //added to start with the wifi off, avoid crashing
+  WiFi.mode(WIFI_OFF); //added to start with the wifi off, avoid crashing
+  WiFi.mode(WIFI_AP);
+  //WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.softAP("Sensor");
+
+  // if DNSServer is started with "*" for domain name, it will reply with
+  // provided IP to all DNS request
+  dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  dnsServer.start(DNS_PORT, "*", apIP);
+
   server = new AsyncWebServer(80);
   // Initialize SPIFFS
   if (!SPIFFS.begin(true))
@@ -227,8 +243,9 @@ void setup_webserver()
   });
 
   server->onNotFound([](AsyncWebServerRequest *request) {
-    Serial.println(request->url().c_str());
-    request->send(404, "text/plain", "Not found");
+    AsyncWebServerResponse *response = request->beginResponse(302); //Sends 302 Weiterleitung
+    response->addHeader("Location", "http://192.168.4.1/index.html");
+    request->send(response);
   });
 
   // Route for root / web page
