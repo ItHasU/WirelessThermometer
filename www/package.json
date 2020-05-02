@@ -1,0 +1,19 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "description": "User Interface for Wireless Thermometer configuration",
+  "main": "index.js",
+  "scripts": {
+    "build": "html-inline index.html -o ../data/www/index.html && gzip -f --best ../data/www/index.html",
+    "serve": "python -m http.server"
+  },
+  "author": "Matthieu AUBRY (ItHasU)",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "html-inline": "^1.2.0"
+  },
+  "dependencies": {
+    "jquery": "^3.5.0",
+    "purecss": "^1.0.1"
+  }
+}

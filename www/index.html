@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="node_modules/purecss/build/base-min.css">
+    <link rel="stylesheet" href="node_modules/purecss/build/buttons-min.css">
+    <link rel="stylesheet" href="node_modules/purecss/build/forms-min.css">
+    <link rel="stylesheet" href="index.css">
+    <title>Setup</title>
+</head>
+
+<body>
+    <div class="nav">
+        <div class="nav-content">
+            <h3>
+                Setup
+                <div id="progress" style="float: right;">...</div>
+            </h3>
+            <div id="message" style="display: none;"></div>
+        </div>
+    </div>
+    <div class="container shadow">
+        <form id="settings" class="pure-form pure-form-stacked">
+            <fieldset>
+                <legend>Wifi</legend>
+
+                <div id="ssid" style="display: none;">
+                    <label>Network</label>
+                    <select class="pure-input-1" name="net-network">
+                        <option>Scanning ...</option>
+                    </select>
+                </div>
+                <label>SSID</label>
+                <input class="pure-input-1" type="text" name="net_ssid" />
+                <label>Password</label>
+                <input class="pure-input-1" type="text" name="net_pass" />
+                <span class="pure-form-message">Password is sent and stored in clear text.</span>
+
+                <legend>MQTT Server</legend>
+
+                <label>Hostname / IP</label>
+                <input class="pure-input-1" type="text" name="mqtt_server" />
+                <span class="pure-form-message">End hostname by .local to use MDNS</span>
+
+                <label>Port</label>
+                <input class="pure-input-1" type="number" name="mqtt_port" placeholder="1883" />
+                <span class="pure-form-message"></span>
+
+                <label>Username</label>
+                <input class="pure-input-1" type="text" name="mqtt_user" />
+                <span class="pure-form-message">Leave blank if no authentication is required.</span>
+
+                <label>Password</label>
+                <input class="pure-input-1" type="text" name="mqtt_pass" />
+                <span class="pure-form-message">Password is only used if username is not blank.</span>
+
+                <legend>Board Configuration</legend>
+
+                <label>Unique ID</label>
+                <input class="pure-input-1" type="text" name="board_uid" />
+                <span class="pure-form-message">Here you need to be creative while avoiding special characters. Use the
+                    room's name for example.</span>
+
+                <button type="button" id="save" class="pure-button pure-button-primary pure-input-1">Save</button>
+                <button type="button" id="reboot" class="pure-button button-danger pure-input-1">Reset
+                    sensor</button>
+            </fieldset>
+        </form>
+    </div>
+
+    <!-- Javascript -->
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>

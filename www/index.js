@@ -15,7 +15,7 @@ function init() {
             url: "/settings.json",
             data: $("#settings").serialize(), // serializes the form's elements.
             success: function () {
-                message("Settings saved", "success");
+                message("Settings saved");
                 getSettings();
             }
         });
@@ -27,19 +27,8 @@ function init() {
             type: "GET",
             url: "/reboot",
             success: function () {
-                message("System has rebooted", "info", 0);
+                message("System has rebooted", 0);
                 $("button").attr("disabled", "disabled");
-            }
-        });
-    });
-
-    $("#clear").click(() => {
-        $.ajax({
-            type: "DELETE",
-            url: "/settings.json",
-            success: function () {
-                message("Settings were cleaned", "info");
-                getSettings();
             }
         });
     });
@@ -61,9 +50,8 @@ function hideProgress() {
     $("#progress").hide();
 }
 
-function message(text, className = "danger", timeout_s = 5) {
+function message(text, timeout_s = 5) {
     var $msg = $("#message");
-    $msg.removeClass("alert-danger alert-success alert-info").addClass(`alert-${className}`);
     if (text) {
         $msg.html(text).slideDown(200);
         if (timeout_s) {

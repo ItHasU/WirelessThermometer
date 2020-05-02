@@ -1,0 +1,58 @@
+.nav {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+
+    padding: 0 1em;
+    background-color: black;
+    color: white;
+}
+
+.nav-content {
+    width: 100%;
+    max-width: 400px;
+    margin: 0px auto;
+}
+
+body {
+    margin-top: 70px;
+    background-color: #eee;
+}
+
+.container {
+    width: 80%;
+    max-width: 400px;
+    margin: 15px auto;
+    background-color: white;
+    padding: 1em;
+}
+
+.shadow {
+    box-shadow: 5px 5px 5px #888;
+}
+
+legend {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.button-danger {
+    background: rgb(202, 60, 60);
+    color: white;
+}
+
+.pure-button {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.pure-button.pure-input-1 {
+    margin-top: 10px;
+}
+
+#message {
+    margin-bottom: 10px;
+    color: #888;
+}
