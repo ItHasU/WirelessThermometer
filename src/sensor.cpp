@@ -86,7 +86,7 @@ int try_post(String (*payload_generator)())
     String NETWORK_PASSWORD = preferences.getString(P_NETWORK_PASSWORD);
 
     String MQTT_SERVER = preferences.getString(P_MQTT_SERVER);
-    int MQTT_PORT = preferences.getInt(P_MQTT_PORT, 1883);
+    int MQTT_PORT = preferences.getInt(P_MQTT_PORT, MQTT_PORT_DEFAULT);
     String MQTT_USERNAME = preferences.getString(P_MQTT_USERNAME);
     String MQTT_PASSWORD = preferences.getString(P_MQTT_PASSWORD);
 

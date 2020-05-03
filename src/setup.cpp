@@ -60,7 +60,11 @@ void setup_config()
     json += "\"" + String(P_NETWORK_PASSWORD) + "\": \"" + preferences.getString(P_NETWORK_PASSWORD) + "\",";
 
     json += "\"" + String(P_MQTT_SERVER) + "\": \"" + preferences.getString(P_MQTT_SERVER) + "\",";
-    json += "\"" + String(P_MQTT_PORT) + "\": \"" + preferences.getInt(P_MQTT_PORT, 1883) + "\",";
+    int port = preferences.getInt(P_MQTT_PORT, MQTT_PORT_DEFAULT);
+    if (port != MQTT_PORT_DEFAULT)
+    {
+      json += "\"" + String(P_MQTT_PORT) + "\": \"" + +"\",";
+    }
     json += "\"" + String(P_MQTT_USERNAME) + "\": \"" + preferences.getString(P_MQTT_USERNAME) + "\",";
     json += "\"" + String(P_MQTT_PASSWORD) + "\": \"" + preferences.getString(P_MQTT_PASSWORD) + "\",";
 
@@ -89,7 +93,15 @@ void setup_config()
       {
         if (strcmp(p->name().c_str(), P_MQTT_PORT) == 0)
         {
-          preferences.putInt(p->name().c_str(), atoi(p->value().c_str()));
+          int port = atoi(p->value().c_str());
+          if (port)
+          {
+            preferences.putInt(p->name().c_str(), port);
+          }
+          else
+          {
+            preferences.remove(p->name().c_str());
+          }
         }
         else
         {

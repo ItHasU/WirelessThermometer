@@ -27,8 +27,19 @@ function init() {
             type: "GET",
             url: "/reboot",
             success: function () {
-                message("System has rebooted", 0);
+                message("Sensor rebooted.", 0);
                 $("button").attr("disabled", "disabled");
+            }
+        });
+    });
+
+    $("#factory").click(() => {
+        $.ajax({
+            type: "GET",
+            url: "/factory",
+            success: function () {
+                message("Restored factory settings.", 0);
+                getSettings();
             }
         });
     });

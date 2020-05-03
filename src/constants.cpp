@@ -13,3 +13,5 @@ const char *P_MQTT_PASSWORD = "mqtt_pass";
 const char *P_BOARD_UID = "board_uid";
 const char *AP_SSID = "Sensor";
 const IPAddress AP_IP(192, 168, 4, 1);
+
+const int MQTT_PORT_DEFAULT = 1883;

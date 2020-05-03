@@ -18,6 +18,8 @@ extern const char *P_BOARD_UID;
 extern const char *AP_SSID;
 extern const IPAddress AP_IP;
 
+extern const int MQTT_PORT_DEFAULT;
+
 #define DEBUG 1
 
 #if DEBUG
