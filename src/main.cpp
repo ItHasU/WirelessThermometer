@@ -97,26 +97,17 @@ void setup()
   pinMode(SENSOR, INPUT_PULLUP);
 
   //-- Check that board is configured -----------------------------------------
-  if (!has_config())
+  if (setupCount == 0)
   {
-    LOG("Configuration not found ... ");
-    // Note that setupCount will be reset to zero on manual board reset
-    if (setupCount == 0)
-    {
-      LOG("Starting access point\n");
-      // We never tried to run the config yet ...
-      // setup AP and HTTP server
-      setupCount++;
-      setup_config();
-      // Wait for 5 minutes
-      blink(TIME_FOR_SETUP, 1000);
-    }
-    else
-    {
-      // We already tried to setup the config, but it seems that we did not
-      // get any response
-      LOG("going into deep sleep, reset to access AP");
-    }
+    // Reset button was pressed, setup count was reset to 0
+    LOG("Starting setup ...\n");
+    // We never tried to run the config yet ...
+    // setup AP and HTTP server
+    setupCount++; // Don't try again until board was reset
+    setup_config();
+    // Wait for 5 minutes
+    blink(TIME_FOR_SETUP, 1000);
+    LOG("Setup timed out.\n");
   }
   else
   {
