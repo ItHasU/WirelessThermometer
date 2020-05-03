@@ -14,7 +14,7 @@ const int LED = 5;
 const int SENSOR = 19;
 
 #define uS_TO_S_FACTOR 1000000 /* Conversion factor for u seconds to seconds */
-#define TIME_TO_SLEEP 5        /* Time ESP32 will go to sleep (in seconds) */
+#define TIME_TO_SLEEP 600      /* Time ESP32 will go to sleep (in seconds) */
 #define TIME_FOR_SETUP 300     /* Time ESP32 will wait for setup (in seconds) */
 
 //-----------------------------------------------------------------------------
