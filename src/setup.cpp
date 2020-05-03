@@ -20,6 +20,38 @@ bool has_config()
   return p_ssid.length();
 }
 
+static RTC_DATA_ATTR bool is_reset = true;
+
+int smart_reset(uint32_t timeout_ms)
+{
+  int count = 0;
+  //-- Check Reset was pressed ------------------------------------------------
+  if (is_reset)
+  {
+    // Simple trick to know if it was a reset, since it will only
+    // be set to true if reset was called. It is maintained on deep sleep.
+    Preferences preferences;
+    preferences.begin("smart_reset", false);
+    count = preferences.getInt("count", 0);
+    is_reset = false;
+    //-- Count clicks -----------------------------------------------------------
+    count++;
+    preferences.putInt("count", count);
+    preferences.end();
+
+    //-- Time out ---------------------------------------------------------------
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(timeout_ms);
+    digitalWrite(LED_BUILTIN, HIGH);
+
+    //-- Clear for next time ----------------------------------------------------
+    preferences.begin("smart_reset", false);
+    preferences.putInt("count", 0);
+    preferences.end();
+  }
+  return count;
+}
+
 void setup_config()
 {
   WiFi.disconnect();   //added to start with the wifi off, avoid crashing

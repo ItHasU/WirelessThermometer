@@ -14,7 +14,7 @@ const int LED = 5;
 const int SENSOR = 19;
 
 #define uS_TO_S_FACTOR 1000000 /* Conversion factor for u seconds to seconds */
-#define TIME_TO_SLEEP 600      /* Time ESP32 will go to sleep (in seconds) */
+#define TIME_TO_SLEEP 5        /* Time ESP32 will go to sleep (in seconds) */
 #define TIME_FOR_SETUP 300     /* Time ESP32 will wait for setup (in seconds) */
 
 //-----------------------------------------------------------------------------
@@ -23,7 +23,6 @@ const int SENSOR = 19;
 
 RTC_DATA_ATTR int successCount = 0;
 RTC_DATA_ATTR int errorCount = 0;
-RTC_DATA_ATTR int setupCount = 0;
 
 #ifdef __cplusplus
 extern "C"
@@ -59,7 +58,7 @@ static float get_temperature()
   return sensors.getTempCByIndex(0);
 }
 
-String generate_payload(const char * board_uid)
+String generate_payload(const char *board_uid)
 {
   String payload = "{";
   payload += "\"uid\":\"";
@@ -88,6 +87,24 @@ void blink(int count, int delay_ms)
   }
 }
 
+void post_temperature()
+{
+  int error = try_post(&generate_payload);
+  if (error == 0)
+  {
+    successCount++;
+  }
+  else
+  {
+#if DEBUG
+    Serial.printf("Posting failed with code: %d\n", error);
+#endif
+    // Some blinks to say there was an error
+    blink(10 /*times*/, 100 /*ms*/);
+    errorCount++;
+  }
+}
+
 void setup()
 {
 #if DEBUG
@@ -100,35 +117,30 @@ void setup()
   digitalWrite(LED, HIGH); // make sure LED is off
 
   //-- Check that board is configured -----------------------------------------
-  if (setupCount == 0)
-  {
-    // Reset button was pressed, setup count was reset to 0
-    LOG("Starting setup ...\n");
-    // We never tried to run the config yet ...
-    // setup AP and HTTP server
-    setupCount++; // Don't try again until board was reset
-    setup_config();
-    // Wait for 5 minutes
-    blink(TIME_FOR_SETUP, 1000);
-    LOG("Setup timed out.\n");
-  }
-  else
-  {
-    //-- Try to send temperature ------------------------------------------------
-    int error = try_post(&generate_payload);
-    if (error == 0)
-    {
-      successCount++;
-    }
-    else
-    {
+  int count = smart_reset();
+
 #if DEBUG
-      Serial.printf("Posting failed with code: %d\n", error);
+  Serial.printf("Reset button: %d click(s)\n", count);
 #endif
-      // Some blinks to say there was an error
-      blink(10 /*times*/, 100 /*ms*/);
-      errorCount++;
-    }
+
+  switch (count)
+  {
+  case 0:
+  case 1:
+    // Default post behavior
+    post_temperature();
+    break;
+  case 2:
+    // 2 clicks, Enter setup
+    LOG("Entering setup ...\n");
+    digitalWrite(LED, LOW);
+    setup_config();
+    delay(TIME_FOR_SETUP * 1000);
+    break;
+  default:
+    // Do nothing
+    ERROR("You clicked too much.\n")
+    break;
   }
 }
 
