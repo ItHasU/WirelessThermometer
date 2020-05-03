@@ -59,10 +59,12 @@ static float get_temperature()
   return sensors.getTempCByIndex(0);
 }
 
-String generate_payload()
+String generate_payload(const char * board_uid)
 {
   String payload = "{";
-  payload += "\"temperature\":";
+  payload += "\"uid\":\"";
+  payload += board_uid;
+  payload += "\",\"temperature\":";
   payload += get_temperature();
   payload += ",\"success\":";
   payload += successCount;

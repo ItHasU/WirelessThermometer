@@ -17,6 +17,6 @@
  * - Fetch temperature
  * - Post temperature
  */
-int try_post(String (*payload_generator)());
+int try_post(String (*payload_generator)(const char * board_uid));
 
 #endif

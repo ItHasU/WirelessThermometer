@@ -76,7 +76,7 @@ static bool wifi_connect(const char *ssid, const char *pass)
     }
 }
 
-int try_post(String (*payload_generator)())
+int try_post(String (*payload_generator)(const char * board_uid))
 {
     //-- Read preferences -----------------------------------------------------
     Preferences preferences;
@@ -140,7 +140,7 @@ int try_post(String (*payload_generator)())
     LOG("Connected to MQTT\n");
 
     //-- Préparation du message -----------------------------------------------
-    String payload = payload_generator();
+    String payload = payload_generator(boardId);
 
     String topic = "n/";
     topic += BOARD_UID;
