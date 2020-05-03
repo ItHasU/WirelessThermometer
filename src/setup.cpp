@@ -144,6 +144,23 @@ void setup_config()
   server->on("/reboot", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200);
 
+    // We cannot use this, else it will get back to setup
+    // ESP.restart();
+    // We make a small deep sleep
+    esp_sleep_enable_timer_wakeup(1000);
+    esp_deep_sleep_start();
+  });
+
+  //-- Reboot -----------------------------------------------------------------
+  server->on("/factory", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200);
+
+    Preferences preferences;
+    preferences.begin(PREFERENCES_NAME, false);
+    preferences.clear();
+    preferences.end();
+
+    // We will restart setup process
     ESP.restart();
   });
 
