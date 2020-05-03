@@ -95,6 +95,7 @@ void setup()
   //-- Initialisation des entrées / sorties --
   pinMode(LED, OUTPUT);
   pinMode(SENSOR, INPUT_PULLUP);
+  digitalWrite(LED, HIGH); // make sure LED is off
 
   //-- Check that board is configured -----------------------------------------
   if (setupCount == 0)
