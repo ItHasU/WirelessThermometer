@@ -5,7 +5,7 @@ npm install
 npm run build
 cd ..
 
-python -m platformio run -t build
+python -m platformio run
 python -m platformio run -t buildfs
 
 mkdir -p ${TARGET}
