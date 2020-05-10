@@ -64,7 +64,7 @@ void setup_config()
   // Initialize SPIFFS
   if (!SPIFFS.begin(true))
   {
-#if DEBUG
+#if SERIAL_DEBUG
     Serial.println("An Error has occurred while mounting SPIFFS");
 #endif
     return;
@@ -139,7 +139,7 @@ void setup_config()
         {
           preferences.putString(p->name().c_str(), p->value());
         }
-#if DEBUG
+#if SERIAL_DEBUG
         Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
 #endif
       }
@@ -209,7 +209,7 @@ void setup_config()
   });
 
   server->onNotFound([](AsyncWebServerRequest *request) {
-#if DEBUG
+#if SERIAL_DEBUG
     Serial.println(request->url().c_str());
 #endif
     request->send(404, "text/plain", "Not found");

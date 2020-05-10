@@ -10,11 +10,10 @@
 //-- Constants ----------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-const int LED = 5;
 const int SENSOR = 19;
 
-#define uS_TO_S_FACTOR 1000000 /* Conversion factor for u seconds to seconds */
-#define TIME_TO_SLEEP 600      /* Time ESP32 will go to sleep (in seconds) */
+#define uS_TO_S_FACTOR 1000000 /* Conversion factor for u seconds to seconds  */
+#define TIME_TO_SLEEP  600     /* Time ESP32 will go to sleep (in seconds)    */
 #define TIME_FOR_SETUP 300     /* Time ESP32 will wait for setup (in seconds) */
 
 //-----------------------------------------------------------------------------
@@ -96,7 +95,7 @@ void post_temperature()
   }
   else
   {
-#if DEBUG
+#if SERIAL_DEBUG
     Serial.printf("Posting failed with code: %d\n", error);
 #endif
     // Some blinks to say there was an error
@@ -107,7 +106,7 @@ void post_temperature()
 
 void setup()
 {
-#if DEBUG
+#if SERIAL_DEBUG
   Serial.begin(9600);
 #endif
 
@@ -119,7 +118,7 @@ void setup()
   //-- Check that board is configured -----------------------------------------
   int count = smart_reset();
 
-#if DEBUG
+#if SERIAL_DEBUG
   Serial.printf("Reset button: %d click(s)\n", count);
 #endif
 

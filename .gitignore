@@ -4,4 +4,5 @@
 .vscode/launch.json
 .vscode/ipch
 */README
-bundle/*.bin
+binaries/*/*.bin
+data/www/index.html.gz

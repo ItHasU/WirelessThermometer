@@ -20,9 +20,7 @@ extern const IPAddress AP_IP;
 
 extern const int MQTT_PORT_DEFAULT;
 
-#define DEBUG 1
-
-#if DEBUG
+#if SERIAL_DEBUG
 #define LOG(S) Serial.print(S);
 #define ERROR(S) Serial.print(S);
 #else
