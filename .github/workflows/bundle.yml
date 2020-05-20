@@ -3,7 +3,7 @@ name: Bundle
 on: [push]
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,6 @@ jobs:
           pip install platformio
       - name: Run PlatformIO
         run: sh bundle.sh
-
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
