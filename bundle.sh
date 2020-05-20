@@ -22,4 +22,4 @@ do
     cp .pio/build/${BOARD}/spiffs.bin ${TARGET}/
 done
 
-zip binaries.zip binaries
+zip -r binaries.zip binaries
