@@ -29,6 +29,7 @@ jobs:
     name: Auto generate release
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ startsWith('refs/tags/', github.ref) }}
 
     steps:
       - name: Fetch generated binaries
@@ -45,7 +46,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: true #${{ !startsWith('refs/tags/', github.ref) }} # Tags will be automatically released
+          draft: false
           prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset
