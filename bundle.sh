@@ -21,5 +21,3 @@ do
     cp .pio/build/${BOARD}/firmware.bin ${TARGET}/
     cp .pio/build/${BOARD}/spiffs.bin ${TARGET}/
 done
-
-zip -r binaries.zip binaries
