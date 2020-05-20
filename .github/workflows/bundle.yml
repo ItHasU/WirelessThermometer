@@ -43,7 +43,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: ${{ !startsWith(github.ref, "refs/tags/") }} # Tags will be automatically released
+          draft: true #${{ !startsWith('refs/tags/', github.ref) }} # Tags will be automatically released
           prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset
