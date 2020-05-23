@@ -1,1 +1,5 @@
 theme: jekyll-theme-cayman
+title: "Thermomètre connecté"
+exclude:
+  - Gemfile
+  - Gemfile.lock
