@@ -1,8 +1,9 @@
+---
 layout: page
-title: "Main page"
-permalink: /
+title: "Thermomètre connecté"
+---
 
-# Wireless Thermometer
+# A propos
 
 Envie de construire vous même un thermomètre connecté, facile et pour un prix raisonnable. Vous êtes sur la bonne page.
 
