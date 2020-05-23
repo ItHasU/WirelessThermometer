@@ -1,7 +1,6 @@
 theme: jekyll-theme-cayman
-title : Thermomètre connecté
-
+locale: fr-FR
+title : "Thermomètre connecté"
 author :
-  name : Matthieu Aubry, pour l'Atelier Objets Connectés - Agora Guilers
+  name : "Matthieu Aubry, pour l'Atelier Objets Connectés - Agora Guilers"
   github : ItHasU
-  twitter : ItHasU
